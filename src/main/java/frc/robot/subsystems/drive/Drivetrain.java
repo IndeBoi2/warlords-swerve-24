@@ -10,18 +10,23 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.*;
+import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.filter.MedianFilter;
 
 public class Drivetrain extends SubsystemBase {
-    public Pigeon2 gyro = new Pigeon2(Constants.Swerve.pigeonID);
+    //public Pigeon2 gyro = new Pigeon2(Constants.Swerve.pigeonID);
+    SPI.Port navxPort = SPI.Port.kMXP;
+    public AHRS gyro = new AHRS();
+    
 
     public SwerveModule[] mSwerveMods = new SwerveModule[] {
         new SwerveModule(0, Constants.Swerve.Mod0.constants),
@@ -37,10 +42,11 @@ public class Drivetrain extends SubsystemBase {
         new SwerveModulePosition(mSwerveMods[3].getPosition().distanceMeters, mSwerveMods[3].getCanCoder()),
     });
 
-    public Pigeon2Configuration config = new Pigeon2Configuration();
+    //public Pigeon2Configuration config = new Pigeon2Configuration();
     
 
-    double yaw = gyro.getYaw().refresh().getValue();
+    //double yaw = gyro.getYaw().refresh().getValue();
+    double yaw = gyro.getYaw();
 
     private MedianFilter filter = new MedianFilter(5);
 
@@ -66,7 +72,7 @@ public class Drivetrain extends SubsystemBase {
                                     translation.getX(), 
                                     translation.getY(), 
                                     -rotation, 
-                                    Rotation2d.fromDegrees(gyro.getYaw().refresh().getValue() * -1)
+                                    Rotation2d.fromDegrees(gyro.getYaw() * -1) //PREV: gyro.getYaw().refresh().getValue()
                                 )
                                 : new ChassisSpeeds(
                                     translation.getX(), 
@@ -112,7 +118,8 @@ public class Drivetrain extends SubsystemBase {
 
     public double getPitch(){
         //return gyro.getRoll() + 4;
-        return gyro.getPitch().refresh().getValue();
+        //return gyro.getPitch().refresh().getValue();
+        return gyro.getPitch();
     }
 
     public void resetOdometry(Pose2d pose) {
@@ -146,16 +153,20 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void zeroGyro(){
-        gyro.setYaw(0);
+        //gyro.setYaw(0);
+        gyro.zeroYaw();
     }
 
+    /*
     public void autoGyro(){
-        gyro.setYaw(180);
+        //gyro.setYaw(180);
+        //no equivalent
     }
-
+    */
     
     public Rotation2d getYaw() {
-        return (Constants.Swerve.invertGyro) ? Rotation2d.fromDegrees(filter.calculate(360 - gyro.getYaw().refresh().getValue())) : Rotation2d.fromDegrees(filter.calculate(gyro.getYaw().refresh().getValue()));
+        //return (Constants.Swerve.invertGyro) ? Rotation2d.fromDegrees(filter.calculate(360 - gyro.getYaw().refresh().getValue())) : Rotation2d.fromDegrees(filter.calculate(gyro.getYaw().refresh().getValue()));
+        return (Constants.Swerve.invertGyro) ? Rotation2d.fromDegrees(filter.calculate(360 - gyro.getYaw())) : Rotation2d.fromDegrees(filter.calculate(gyro.getYaw()));
     }
 
     public void resetToAbsolute(){
