@@ -197,7 +197,7 @@ public final class Constants {
     // public static final Rotation2d kFRCANCoderZero = Rotation2d.fromDegrees(-85.48 - 135);
     public static final Rotation2d kFRCANCoderZero = Rotation2d.fromDegrees(136.48 - 180);
 
-    public static final int kBRDriveTalonPort = 8;
+    public static final int kBRDriveTalonPort = 8; //hi
     public static final int kBRTurningTalonPort = 7;
     public static final int kBRCANCoderPort = 17;
     // public static final Rotation2d kBRCANCoderZero = Rotation2d.fromDegrees(-3.6 - 5.18);
